@@ -1,0 +1,31 @@
+###########
+# configuration of SPA and BROKER
+#
+
+# SPA values
+SPA_NAME = "My Spa"
+SPA_IDENTIFIER = "SPAXX:XX:XX:XX:XX:XX"
+
+
+# Replace with your own UUID, see https://www.uuidgenerator.net/>
+CLIENT_ID = "123"
+
+# BROKER values
+BROKER_ADDRESS = "192.168.1.100"
+BROKER_PORT = 1883
+BROKER_USERNAME = "username"
+BROKER_PASSWORD = "password"
+BROKER_ID = "geckoclient"
+
+# Topic
+TOPIC = "whirlpool"
+
+# Log file
+LOGFILE = "/var/log/geckoclient.log"
+
+# Debug level
+# can be one of the following strings
+#   'CRITICAL','FATAL', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'NOTSET'
+DEBUG_LEVEL = 'INFO'
+
+
