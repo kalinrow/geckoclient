@@ -19,7 +19,7 @@ pip install paho-mqtt
 
 ### Reminders fix for geckolib (v0.3.20)
 
-Until the the pull request #24 (https://github.com/gazoodle/geckolib/pull/24) has been merged into the geckolib you need to fix the geckolib just installed. 
+Until the the pull request #25 (https://github.com/gazoodle/geckolib/pull/25) has been merged into the geckolib you need to fix the geckolib just installed. 
 To do so you need to find the installation path of the geckolib library and replace the the orginal files with the one from the `fix_geckolib`. Take care about the folder names to not mix the two `remindes.py` files.
 
 ## Installation
