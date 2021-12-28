@@ -97,6 +97,9 @@ sudo systemctl status gecko.service
 # Control the light
 The lights can be switched via the broker. To do so simple use the command topic `%prefix%/whirlpool/lights/cmnd` and send the text `set_lights=HI` for on and `set_lights=OFF` for off.
 
+# Known Issues
+Sometimes getting the target temperature in case it is set directly on the pool does not work. Similar sometimes setting the targe temperature is not working too. I hope to be able to improve that in the coming month.
+
 # Acknowledgements
 
  - Inspired by https://github.com/gazoodle/geckolib and https://github.com/chicago6061/in.touch2.
