@@ -2,6 +2,8 @@
 """
     Client program for geckolib. Publishs most relevant data
     on a configured broker.
+
+    version 0.2
 """
 
 # import configuration variables
@@ -83,10 +85,10 @@ def get_pumps_payload() -> str:
     # get actual time
     now = datetime.now()  # current date and time
 
+    # loop over all pumps
     json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-    json += f'"{facade.pumps[0].name}":"{facade.pumps[0].mode}",'
-    json += f'"{facade.pumps[1].name}":"{facade.pumps[1].mode}",'
-    json += f'"{facade.pumps[2].name}":"{facade.pumps[2].mode}",'
+    for pump in facade.pumps:
+        json += f'"{pump.name}":"{pump.mode}",'
 
     # find circulation pump
     for sensor in facade.binary_sensors:
