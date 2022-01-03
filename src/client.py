@@ -307,30 +307,38 @@ with GeckoLocator(config.CLIENT_ID, spa_to_find=config.SPA_IDENTIFIER) as locato
 
         if (refresh_counter > refresh_interval):
 
+            logger.debug("Starting refresh data")
+
             # refresh spa live data
             facade.spa.refresh()
 
             # publish heater data
+            logger.debug("Refreshing heater data")
             json = get_waterheater_payload()
             mqtt.publish_state(const.TOPIC_WATERHEAT, json)
 
             # publish care mode
+            logger.debug("Refreshing care mode data")
             json = get_watercare_payload()
             mqtt.publish_state(const.TOPIC_WATERCARE, json)
 
             # publish filter status
+            logger.debug("Refreshing filter data")
             json = get_filter_status()
             mqtt.publish_state(const.TOPIC_FILTER_STATUS, json)
 
             # publish pumps
+            logger.debug("Refreshing pumps data")
             json = get_pumps_payload()
             mqtt.publish_state(const.TOPIC_PUMPS, json)
 
             # publish lights
+            logger.debug("Refreshing lights data")
             json = get_lights_payload()
             mqtt.publish_state(const.TOPIC_LIGHTS, json)
 
             # publish remainders
+            logger.debug("Refreshing remainders data")
             json = get_reminders_payload()
             if json is not None:
                 mqtt.publish_state(const.TOPIC_REMINDERS, json)
