@@ -78,7 +78,7 @@ def prepare_logger():
 
 ####################################################
 #
-#  JSON payload creator for teh different devices
+#  JSON payload creator for the different devices
 #
 ###########################################
 def get_pumps_payload() -> str:
@@ -163,7 +163,7 @@ def get_watercare_payload() -> str:
 
 def get_filter_status() -> str:
     '''
-    gets the filter status. can be clean adn purge
+    gets the filter status. can be clean and purge
     '''
     for sensor in facade.binary_sensors:
         if (sensor.name == 'Filter Status:Clean'):

@@ -58,7 +58,7 @@ class Mqtt:
 
     def on_disconnect(self, client, userdata, rc):
         if (rc != 0):
-            logger.error(f"Connection error number {rc} occured")
+            logger.error(f"Unexpected disconnection.Error number {rc}")
 
     # prepare MQTT
     def connect_mqtt(self, user: str, password: str) -> int:
