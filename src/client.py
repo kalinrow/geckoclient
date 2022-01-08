@@ -3,7 +3,7 @@
     Client program for geckolib. Publishs most relevant data
     on a configured broker.
 
-    version 0.2
+    version 0.3
 """
 
 # import configuration variables
@@ -86,15 +86,26 @@ def get_pumps_payload() -> str:
     now = datetime.now()  # current date and time
 
     # loop over all pumps
-    json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+    json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
     for pump in facade.pumps:
-        json += f'"{pump.name}":"{pump.mode}",'
+        json += f',"{pump.name}":"{pump.mode}"'
 
     # find circulation pump
     for sensor in facade.binary_sensors:
         if sensor.key == "CIRCULATING PUMP":
-            json += f'"{sensor.name}":"{sensor.state}"'
+            json += f',"{sensor.name}":"{sensor.state}"'
             break
+    json += '}'
+    return json
+
+
+def get_blowers_payload() -> str:
+    # get actual time
+    now = datetime.now()  # current date and time
+
+    json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
+    for blower in facade.blowers:
+        json += f',"{blower.name}":"{blower.state_sensor().state}"'
     json += '}'
     return json
 
@@ -103,12 +114,11 @@ def get_lights_payload() -> str:
     # get actual time
     now = datetime.now()  # current date and time
 
-    json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+    json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
     for light in facade.lights:
-        json += f'"{light.name}":"{light.state_sensor().state}"'
+        json += f',"{light.name}":"{light.state_sensor().state}"'
     json += '}'
     return json
-
 
 def get_waterheater_payload() -> str:
 
@@ -253,7 +263,7 @@ def set_temperature(client, userdata, message):
 # log all changes
 # can later be used for actions
 def on_spa_change(sender, old_value, new_value):
-    logger.debug(f"{sender} changed from {old_value} to {new_value}")
+    logger.debug(f"on_spa_change: >{sender}< changed from {old_value} to {new_value}")
 
 
 #########
@@ -331,6 +341,11 @@ with GeckoLocator(config.CLIENT_ID, spa_to_find=config.SPA_IDENTIFIER) as locato
             logger.debug("Refreshing pumps data")
             json = get_pumps_payload()
             mqtt.publish_state(const.TOPIC_PUMPS, json)
+
+            # publish blowers
+            logger.debug("Refreshing blowers data")
+            json = get_blowers_payload()
+            mqtt.publish_state(const.TOPIC_BLOWERS, json)
 
             # publish lights
             logger.debug("Refreshing lights data")
