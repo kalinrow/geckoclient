@@ -113,8 +113,13 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 # History
 
-## v0.2 fix for reading pumps correctly
+### v0.3
+* Adding states for blowers
 
-## v0.1 first working version
+### v0.2
+* fix for reading pumps correctly
+
+### v0.1
+* first working version
 
 
