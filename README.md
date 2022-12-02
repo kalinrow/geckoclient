@@ -13,7 +13,7 @@ You need to have python 3 installed with the libraries geckolib and paho-mqtt.
 
 ```console
 sudo apt install python3-pip
-pip install geckolib
+pip install geckolib==0.3.20
 pip install paho-mqtt
 ```
 
