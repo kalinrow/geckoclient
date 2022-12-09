@@ -9,21 +9,17 @@ So far the heater, watercare, filter, the pumps and lights status as well as the
 The script has been written and tested only on a Linux machine. No idea, if it also works on a Windows host.
 For sure the service installation needs to be adapted.
 
-You need to have python 3 installed with the libraries geckolib and paho-mqtt.
+You need to have python 3 installed with the libraries geckolib and asyncio-paho.
 
 ```console
 sudo apt install python3-pip
-pip install geckolib==0.3.20
-pip install paho-mqtt
+pip install geckolib==0.4.7
+pip install asyncio-paho
 ```
-
-### Reminders fix for geckolib (v0.3.20)
-
-Until the the pull request #25 (https://github.com/gazoodle/geckolib/pull/25) has been merged into the geckolib you need to fix the geckolib just installed. 
-To do so you need to find the installation path of the geckolib library and replace the the orginal files with the one from the `fix_geckolib`. Take care about the folder names to not mix the two `remindes.py` files.
 
 ## Installation
 The installation is quiet simple by coping the files to a dedicated folder and configuring the client to run as a service.
+If you update from an older version, please stop the service before coping  the files.
 
 1. Create a folder, e.g. /opt/geckoclient
 2. Copy all python file into the folder
@@ -97,8 +93,36 @@ sudo systemctl status gecko.service
 # Control the light
 The lights can be switched via the broker. To do so simple use the command topic `%prefix%/whirlpool/lights/cmnd` and send the text `set_lights=HI` for on and `set_lights=OFF` for off.
 
+# Control the temerature
+The temperature can be the broker. To do so  use the command topic `%prefix%/whirlpool/water_heater/cmnd` and send the text `set_temp=TEMP` where _TEMP_ is the desired temerature (only CELSIUS values from 15 to 40 are allowed).
+
+# Control the pumps
+Pumps can alsow be switched via the broker. To do so use the command topic `%prefix%/whirlpool/pumps/cmnd` with payload  `set_pump:PUMP=[HI|OFF]`. Wherer _PUMP_ is the pump number (zero based, so first pump is 0) and _HI/OFF_ will switch ON or OFF the pump.
+
 # Known Issues
-Sometimes getting the target temperature in case it is set directly on the pool does not work. Similar sometimes setting the targe temperature is not working too. I hope to be able to improve that in the coming month.
+Without manipualting the geckolib, receiving changed values might take up to 2 minutes. I was not able to figure out why.
+
+If you need quicker, e.g because you want to measure runtimes of pumps, etc. you need to change the file async_facade.py. To do so, first find the file (in a standard Debian 11 with python3.9 is might be under /usr/local/lib/python3.9/dist-packages/geckolib/automation).
+Then add after line 78 the block (take care to use tabs or spaces depending on what the exiting file already uses):
+
+```python
+    if self._ready:
+        active_mode = True
+```
+
+It should now look like:
+
+```python
+76  for device in self.all_config_change_devices:
+77      if device.is_on:  # type: ignore
+78          active_mode = True
+79  if self._ready:
+80      active_mode = True
+81  set_config_mode(active_mode)
+```
+
+Now changes are reported immediately. Still there is a 2 minuted gap after the startup of the service.
+
 
 # Acknowledgements
 
@@ -112,6 +136,11 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 
 # History
+
+### v0.4
+* Adapting to geckolib 0.4.7
+* No manipulation of the gecklib is needed anymore to get the reminders.
+* Switching to Asynchronous I/O (asyncio) Paho MQTT client to be able to use the async part of teh geckoclient
 
 ### v0.3
 * Adding states for blowers

@@ -4,10 +4,12 @@
 # import configuration variables
 from config import *
 
+import asyncio
+
 import logging
 from typing import List
 import paho.mqtt.client as paho
-
+from asyncio_paho import AsyncioPahoClient
 
 CONECTION_RC = ("MQTT Connection successful",
                 "MQTT Connection refused – incorrect protocol version",
@@ -20,6 +22,8 @@ CONECTION_RC = ("MQTT Connection successful",
 logger = logging.getLogger(__name__)
 
 #
+
+
 class Mqtt:
     """
     Return a mqtt.
@@ -35,19 +39,21 @@ class Mqtt:
         self.mqtt_port = mqtt_port
 
     # MQTT message receiver
-    def on_message(self, client, userdata, message):
+    async def on_message_async(self, client, userdata, message):
         """
         Messages fro top level TOPIC, not catched elsewhere
         """
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg erhalten: topic: {topic}, payload: {msg}')
+        logger.debug(f'MQTT default on_message: topic: {topic}, payload: {msg}')
 
     # MQTT subscript during on_conect callback
-    def on_conect(self, client, userdata, flags, rc):
+    async def on_connect_async(self, client, userdata, flags, rc):
         if (rc == 0):
             logger.info(
                 f"MQTT successfull connected to broker {self.mqtt_server}")
+                    # test subscription
+
         else:
             logger.error(f"Connection error number {rc} occured")
             logger.error(f"Error: {CONECTION_RC[rc]}")
@@ -61,36 +67,40 @@ class Mqtt:
             logger.error(f"Unexpected disconnection.Error number {rc}")
 
     # prepare MQTT
-    def connect_mqtt(self, user: str, password: str) -> int:
+    async def connect_mqtt(self, user: str, password: str) -> int:
 
-        self.client = paho.Client(
-            BROKER_ID, clean_session=True)  # create new instance
+        self.client = AsyncioPahoClient(
+            client_id=BROKER_ID, clean_session=True)  # create new instance
 
         self.client.username_pw_set(user, password)
 
-        self.client.on_connect = self.on_conect
+        self.client.asyncio_listeners.add_on_connect(self.on_connect_async)
         self.client.on_subscribe = self.on_subscribe
-        self.client.on_message = self.on_message
-        self.client.on_disconnect = self.on_disconnect
+        self.client.asyncio_listeners.add_on_message(self.on_message_async)
+        self.on_disconnect = self.on_disconnect
 
         try:
-            result = self.client.connect(
+            self.client.connect_async(
                 self.mqtt_server, self.mqtt_port)  # connect to broker
         except Exception as ex:
             logger.error(f"Connection error: {ex.args[0]}: {ex.args[1]}")
             return 1
 
-        self.client.loop_start()
+        # self.client.loop_start()
         return 0
 
-    def subscribe_and_message_callback(self, sub: str, callback):
+    def subscribe(self, sub: str) -> None:
+        logger.info(f'Subscribing to {sub}')
+        self.client.subscribe(sub)
+
+    async def subscribe_and_message_callback_async(self, sub: str, callback) -> None:
         '''
         Register a message callback for a specific topic. Messages that match 'sub' 
         will be passed to 'callback'. Any non-matching messages will be passed to the default on_message callback.
         '''
         logger.info(f'Subscribing to {sub}')
-        self.client.subscribe(sub)
-        self.client.message_callback_add(sub, callback)
+        await self.client.asyncio_subscribe(sub)
+        self.client.asyncio_listeners.message_callback_add(sub, callback)
 
     def publish(self, topic: str, msg: str, qos=0):
         '''
@@ -106,4 +116,3 @@ class Mqtt:
 
     def close(self):
         self.client.disconnect()
-        self.client.loop_stop()
