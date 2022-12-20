@@ -3,7 +3,7 @@
     Client program for geckolib. Publishs most relevant data
     on a configured broker.
 
-    version 0.4
+    version 0.5
 """
 
 # import configuration variables
@@ -54,10 +54,10 @@ def prepare_logger():
     # log file location is depanding on write access
     try:
         rfh = logging.handlers.RotatingFileHandler(
-            config.LOGFILE, mode='a', maxBytes=100000, backupCount=1, encoding=None, delay=False)
+            config.LOGFILE, mode='a', maxBytes=100000, backupCount=config.BACKUP_COUNT, encoding=None, delay=False)
     except PermissionError:
         rfh = logging.handlers.RotatingFileHandler(
-            "gecko_client.log", mode='a', maxBytes=100000, backupCount=1, encoding=None, delay=False)
+            "gecko_client.log", mode='a', maxBytes=100000, backupCount=config.BACKUP_COUNT, encoding=None, delay=False)
     rfh.setLevel(config.DEBUG_LEVEL)
 
     # create formatter
@@ -79,6 +79,8 @@ def prepare_logger():
 # Main routine connecting to the SPA and start looping
 #
 ##########
+
+
 async def main() -> None:
 
     # prepare MQTT
@@ -88,8 +90,13 @@ async def main() -> None:
     if result != 0:
         logger.error("Stopping - Can't connect to broker")
         exit(1)
+    
+    if config.SPA_IP_ADDRESS == "DHCP":
+        ip = None
+    else:
+        ip = config.SPA_IP_ADDRESS
 
-    async with MySpa(config.CLIENT_ID, spa_identifier=config.SPA_IDENTIFIER, spa_name=config.SPA_NAME) as spaman:
+    async with MySpa(config.CLIENT_ID, spa_address=ip, spa_identifier=config.SPA_IDENTIFIER, spa_name=config.SPA_NAME) as spaman:
 
         await asyncio.sleep(GeckoConstants.ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD)
 
@@ -106,12 +113,20 @@ async def main() -> None:
             const.TOPIC_LIGHTS + "/cmnd", spaman.set_lights)
         await mqtt.subscribe_and_message_callback_async(
             const.TOPIC_PUMPS + "/cmnd", spaman.set_pumps)
+        await mqtt.subscribe_and_message_callback_async(
+            const.TOPIC_BLOWERS + "/cmnd", spaman.set_blowers)
+        await mqtt.subscribe_and_message_callback_async(
+            const.TOPIC_WATERCARE + "/cmnd", spaman.set_watercare)            
 
         # get the facade
         facade = spaman.facade
 
-        logger.info("Spa Version: " + spaman.facade.spa.version)
-        logger.info("Spa Revison: " + spaman.facade.spa.revision)
+        logger.info("GeckoClient starting...")
+        logger.info("GC Version     : " + const.GECK_CLIENT_VERSION)
+        logger.info("Spa Name       : " + spaman.facade.spa.descriptor.name)
+        logger.info("Spa Version    : " + spaman.facade.spa.version)
+        logger.info("Spa Revison    : " + spaman.facade.spa.revision)
+        logger.info("Spa IP address : " + spaman.facade.spa.descriptor.ipaddress)
 
         reconnectButton = spaman.reconnect_button
 
@@ -124,8 +139,8 @@ async def main() -> None:
             if (refresh_counter > refresh_interval):
 
                 refresh_counter = 1
-                if spaman.spa_state is not GeckoSpaState.CONNECTED :
-                    logger.info ("Reconnecting...")
+                if spaman.spa_state is not GeckoSpaState.CONNECTED:
+                    logger.info("Reconnecting...")
                     await reconnectButton.async_press()
 
             await asyncio.sleep(1)
@@ -147,6 +162,5 @@ if __name__ == "__main__":
     # add signal listners
     signal.signal(signal.SIGINT, handler_stop_signals)
     signal.signal(signal.SIGTERM, handler_stop_signals)
-
 
     asyncio.run(main())

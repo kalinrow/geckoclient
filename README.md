@@ -13,8 +13,8 @@ You need to have python 3 installed with the libraries geckolib and asyncio-paho
 
 ```console
 sudo apt install python3-pip
-pip install geckolib==0.4.7
-pip install asyncio-paho
+sudo pip install geckolib==0.4.7
+sudo pip install asyncio-paho
 ```
 
 ## Installation
@@ -35,7 +35,9 @@ If you update from an older version, please stop the service before coping  the 
 
 In order to connect to your SPA and broker, you need to configure the connection parameters below.
 You can use the in.touch APP to retrive the SPA_NAME and SPA_IDENTIFIER. the identifier should be the MAC Adresse with SPA as prefix.
+If the spa is not detected you can add the IP address. That can help to fix the issue.
 See example below.
+
 
 Please use the UUID generator to create an unique ID for your client. That is important for have a good communication.
 See also comments from the developer of the geckolib on this topic under https://github.com/gazoodle/geckolib
@@ -44,6 +46,7 @@ See also comments from the developer of the geckolib on this topic under https:/
 # SPA values
 SPA_NAME = "My Spa"
 SPA_IDENTIFIER = "SPAXX:XX:XX:XX:XX:XX"
+SPA_IP_ADDRESS = "DHCP"   # either the IP address or DHCP in case of dynatic assigment
 
 
 # Replace with your own UUID, see https://www.uuidgenerator.net/>
@@ -100,6 +103,8 @@ The temperature can be the broker. To do so  use the command topic `%prefix%/whi
 Pumps can alsow be switched via the broker. To do so use the command topic `%prefix%/whirlpool/pumps/cmnd` with payload  `set_pump:PUMP=[HI|OFF]`. Wherer _PUMP_ is the pump number (zero based, so first pump is 0) and _HI/OFF_ will switch ON or OFF the pump.
 
 # Known Issues
+
+## Long waiting time for receivung value change notification
 Without manipualting the geckolib, receiving changed values might take up to 2 minutes. I was not able to figure out why.
 
 If you need quicker, e.g because you want to measure runtimes of pumps, etc. you need to change the file async_facade.py. To do so, first find the file (in a standard Debian 11 with python3.9 is might be under /usr/local/lib/python3.9/dist-packages/geckolib/automation).
@@ -123,6 +128,16 @@ It should now look like:
 
 Now changes are reported immediately. Still there is a 2 minuted gap after the startup of the service.
 
+## High CPU usage
+If you suffer from high CPU usage you can change the yield value for asyncio sleep time.
+That will dramatically reduce the CPU usage.
+
+To do so, change the value in `const.py` from geckolib main folder (see above) from 0.001 to 0.02. The later value work well for me.
+```python
+    CONNECTION_STEP_PAUSE_IN_SECONDS = 0  # Time between connection steps
+    MAX_RF_ERRORS_BEFORE_HALT = 50
+    ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD = 0.02 # Changed from 0.001
+```
 
 # Acknowledgements
 
@@ -135,7 +150,18 @@ Licensed under the EUPL-1.2-or-later.
 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 
+# Improvments
+* Error handling not able to find/connect to a spa
+
 # History
+
+### v0.5
+* Breaking change: IP address parameter needs to be provided in config.py
+* Fixing publishing filter values
+* Adding smart winter and ozone mode values
+* Adding setting of first blower and watecare more (thanks to Macus)
+* Add BACKUP_COUNT option in config.py
+
 
 ### v0.4
 * Adapting to geckolib 0.4.7
