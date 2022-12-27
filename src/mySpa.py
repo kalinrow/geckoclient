@@ -1,4 +1,4 @@
-""" Sample client demonstrating async use of geckolib """
+""" Sample client demonstrating async use of GeckoLib """
 # import configuration variables
 import config
 
@@ -9,7 +9,7 @@ import logging
 
 from datetime import datetime
 
-from geckolib import ( GeckoSpaEvent, GeckoSpaState)
+from geckolib import (GeckoSpaEvent, GeckoSpaState)
 from geckolib import GeckoAsyncSpaMan
 
 from geckolib import (GeckoWaterCare, GeckoReminders, GeckoStructAccessor)
@@ -18,6 +18,7 @@ from geckolib import GeckoConstants
 
 
 logger = logging.getLogger(__name__)
+
 
 class MySpa(GeckoAsyncSpaMan):
     """Spa man implementation"""
@@ -32,7 +33,6 @@ class MySpa(GeckoAsyncSpaMan):
     def onValueChange(self, callback) -> None:
         self._onValueChange = callback
 
-
     async def handle_event(self, event: GeckoSpaEvent, **kwargs) -> None:
         # Uncomment this line to see events generated
         # print(f"{event}: {kwargs}")
@@ -40,14 +40,14 @@ class MySpa(GeckoAsyncSpaMan):
         if event == GeckoSpaEvent.CLIENT_FACADE_IS_READY:
             self._can_use_facade = True
 
-            # at least pubish all values once
+            # at least publish once all values once
             self.refreshBlower()
             self.refreshFilters()
             self.refreshHeater()
             self.refreshLights()
             self.refreshPumps()
             self.refreshReminders()
-            self.refreshWatercare()
+            self.refreshWaterCare()
             self.refreshOzoneMode()
             self.refreshSmartWinterMode()
 
@@ -62,22 +62,21 @@ class MySpa(GeckoAsyncSpaMan):
         ):
             self._can_use_facade = False
 
-
-
     ########################
     #
-    # Refresh watercare values only
+    # Refresh water care values only
     #
     ###################
-    def refreshWatercare(self) -> None:
+
+    def refreshWaterCare(self) -> None:
 
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
-            logger.debug("Refreshing watercare data")
+            logger.debug("Refreshing water care data")
 
-            # get's the values for watercare module and create a nice json payload
-            
+            # get's the values for water care module and create a nice json payload
+
             # get care mode
             mode = self._facade.water_care.mode
             if mode == None:  # only to ensure a real value
@@ -106,19 +105,18 @@ class MySpa(GeckoAsyncSpaMan):
             json += f'], "mode(txt)":"{mode_txt}"'
             json += '}'
 
-            self._onValueChange(const.TOPIC_WATERCARE, json)  
-
+            self._onValueChange(const.TOPIC_WATERCARE, json)
 
     ########################
     #
     # Refresh blower values only
     #
     ###################
+
     def refreshBlower(self) -> None:
 
-
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
             logger.debug("Refreshing blowers data")
             # get actual time
@@ -131,16 +129,16 @@ class MySpa(GeckoAsyncSpaMan):
 
             self._onValueChange(const.TOPIC_BLOWERS, json)
 
-   
     ########################
     #
     # Refresh pump values only
     #
     ###################
+
     def refreshPumps(self) -> None:
 
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
             logger.debug("Refreshing pumps data")
 
@@ -169,7 +167,7 @@ class MySpa(GeckoAsyncSpaMan):
     def refreshLights(self) -> None:
 
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
             logger.debug("Refreshing lights data")
             # get actual time
@@ -190,7 +188,7 @@ class MySpa(GeckoAsyncSpaMan):
     def refreshHeater(self) -> None:
 
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
             logger.debug("Refreshing heater data")
 
@@ -215,7 +213,7 @@ class MySpa(GeckoAsyncSpaMan):
     def refreshReminders(self) -> None:
 
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
             logger.debug("Refreshing reminder data")
 
@@ -245,16 +243,16 @@ class MySpa(GeckoAsyncSpaMan):
             if json is not None:
                 self._onValueChange(const.TOPIC_REMINDERS, json)
 
-
     ########################
     #
     # Refresh filter values only
     #
     ###################
+
     def refreshFilters(self) -> None:
 
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
 
             logger.debug("Refreshing filter data")
@@ -280,7 +278,7 @@ class MySpa(GeckoAsyncSpaMan):
     ###################
     def refreshSmartWinterMode(self) -> None:
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
 
             logger.debug("Refreshing filter data")
@@ -290,7 +288,7 @@ class MySpa(GeckoAsyncSpaMan):
             for sensor in self._facade.sensors:
                 if (sensor.name == 'Smart Winter Mode:Risk'):
                     swmRisk = sensor.state
-            
+
             # get actual time
             now = datetime.now()  # current date and time
             json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
@@ -298,8 +296,8 @@ class MySpa(GeckoAsyncSpaMan):
             json += f'"Smart Winter Mode:Risk":"{str(swmRisk).lower()}"'
             json += '}'
 
-            self._onValueChange(const.TOPIC_SMARTWINTERMODE, json)     
- 
+            self._onValueChange(const.TOPIC_SMARTWINTERMODE, json)
+
     ########################
     #
     # Refresh Ozone/BromiCharge values only
@@ -307,40 +305,39 @@ class MySpa(GeckoAsyncSpaMan):
     ###################
     def refreshOzoneMode(self) -> None:
         if self._onValueChange is None:
-            logger.error("No OnValueChange callback definied")
+            logger.error("No OnValueChange callback defined")
         else:
 
             logger.debug("Refreshing filter data")
             for sensor in self._facade.binary_sensors:
                 if (sensor.name == 'Ozone'):
                     ozoneMode = sensor.state
-            
+
             # get actual time
             now = datetime.now()  # current date and time
             json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
             json += f'"Ozone Mode":"{str(ozoneMode).lower()}"'
             json += '}'
 
-            self._onValueChange(const.TOPIC_OZONEMODE, json)             
-
-
+            self._onValueChange(const.TOPIC_OZONEMODE, json)
 
     ################
     #
     # Switch the pump #  ON/OFF
     #
     ##############
+
     async def set_pumps(self, client, userdata, message):
         '''
         Switch pump state
         '''
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg erhalten: topic: {topic}, payload: {msg}')
+        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
         if (msg.startswith("set_pump")):
             # get pump
             values = msg.split(":")
-            if len(values) != 2 :
+            if len(values) != 2:
                 logger.warn("Wrong payload of setting pumps received.")
                 return
             parts = values[1].split("=")
@@ -351,7 +348,7 @@ class MySpa(GeckoAsyncSpaMan):
             try:
                 pump = int(parts[0])
             except Exception as ex:
-                logger.warn(f"Pump number converison error: {ex.args}") 
+                logger.warn(f"Pump number conversion error: {ex.args}")
                 return
             if pump < 0 or pump > len(self._facade.pumps):
                 logger.warn(f"Pump number {pump} does not exist.")
@@ -363,49 +360,48 @@ class MySpa(GeckoAsyncSpaMan):
             elif "OFF" == parts[1]:
                 logger.info(f"Switching pump {pump}  off")
                 await self._facade.pumps[pump].async_set_mode("OFF")
- 
 
     ################
     #
     # Switch the first light ON/OFF
     #
     ##############
+
     async def set_lights(self, client, userdata, message):
         '''
         Switch light state
         '''
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg erhalten: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_lights")) and self.facade.lights[0] is not None :
+        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
+        if (msg.startswith("set_lights")) and self.facade.lights[0] is not None:
             parts = msg.split("=")
             if len(parts) == 2:
                 if "HI" == parts[1]:
                     logger.info("Switching lights on")
                     await self._facade.lights[0].async_turn_on()
-                    #await self._facade.pumps[0].async_set_mode("HI")
                     logger.info("Light switched on")
                 elif "OFF" == parts[1]:
                     logger.info("Switching lights off")
                     await self._facade.lights[0].async_turn_off()
-
 
     ################
     #
     # Switch the first blower ON/OFF
     #
     ##############
+
     async def set_blowers(self, client, userdata, message):
         '''
         Switch blower state
         '''
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg erhalten: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_blower")) and self.facade.blowers[0] is not None :
+        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
+        if (msg.startswith("set_blower")) and self.facade.blowers[0] is not None:
             parts = msg.split("=")
             if len(parts) == 2:
-                if "ON" == parts[1]:
+                if "HI" == parts[1]:
                     logger.info("Switching blower on")
                     await self._facade.blowers[0].async_turn_on()
                     logger.info("Blower switched on")
@@ -413,20 +409,19 @@ class MySpa(GeckoAsyncSpaMan):
                     logger.info("Switching blower off")
                     await self._facade.blowers[0].async_turn_off()
 
-
     ################
     #
     # Sets the the watercare mode
     #
     ##############
-                
+
     async def set_watercare(self, client, userdata, message):
         '''
-        Set watercare mode
+        Set water care mode
         '''
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg erhalten: topic: {topic}, payload: {msg}')
+        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
         if (msg.startswith("set_watercare")):
             parts = msg.split("=")
             if len(parts) == 2:
@@ -448,28 +443,31 @@ class MySpa(GeckoAsyncSpaMan):
         '''
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg erhalten: topic: {topic}, payload: {msg}')
+        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
         if (msg.startswith("set_temp")):
             parts = msg.split("=")
             if len(parts) == 2:
                 try:
                     temp = float(parts[1])
                     if temp < 15 and temp > 40:
-                        logger.warn(f"Temperature {temp} outside allowed values")
+                        logger.warn(
+                            f"Temperature {temp} outside allowed values")
                         return
                     await self.facade.water_heater.async_set_target_temperature(temp)
-                    logger.info(f"Target temparature set to {temp}")
+                    logger.info(f"Target temperature set to {temp}")
                 except:
-                    logger.error(f"Wrong temperature value received: {parts[1]}")
+                    logger.error(
+                        f"Wrong temperature value received: {parts[1]}")
                     return
-                
+
 
 class OnChange():
-    def __init__(self, mySpa : MySpa) -> None:
+    def __init__(self, mySpa: MySpa) -> None:
         self._mySpa = mySpa
 
     def __call__(self, sender, old_value, new_value):
-        logger.debug(f"on_spa_change: >{sender}< changed from {old_value} to {new_value}")
+        logger.debug(
+            f"on_spa_change: >{sender}< changed from {old_value} to {new_value}")
         print(f">{sender}< changed from {old_value} to {new_value}")
 
         # only if facade is ready
@@ -477,35 +475,36 @@ class OnChange():
             return
 
         if isinstance(sender, GeckoReminders):
-                self._mySpa.refreshReminders()
+            self._mySpa.refreshReminders()
 
         elif isinstance(sender, GeckoWaterCare):
-                self._mySpa.refreshWatercare()
+            self._mySpa.refreshWaterCare()
 
-        elif isinstance(sender, GeckoStructAccessor) :
-                if sender.tag == "UdLi":
-                        self._mySpa.refreshLights()
+        elif isinstance(sender, GeckoStructAccessor):
+            if sender.tag == "UdLi":
+                self._mySpa.refreshLights()
 
-                elif sender.tag == "CP" or sender.tag ==  "P1" or sender.tag ==  "P2" or sender.tag == "P3" :
-                        self._mySpa.refreshPumps()
+            elif sender.tag == "CP" or sender.tag == "P1" or sender.tag == "P2" or sender.tag == "P3":
+                self._mySpa.refreshPumps()
 
-                elif sender.tag == "SetpointG" or sender.tag == "RealSetPointG" or sender.tag == "DisplayedTempG" :
-                        self._mySpa.refreshHeater()
+            elif sender.tag == "SetpointG" or sender.tag == "RealSetPointG" or sender.tag == "DisplayedTempG":
+                self._mySpa.refreshHeater()
 
-                elif sender.tag == "BL" :
-                        self._mySpa.refreshBlower()
-                
-                elif sender.tag == "SwmRisk" or sender.tag == "SwmActive" :
-                        self._mySpa.refreshSmartWinterMode()
-                
-                elif sender.tag == "O3" :
-                        self._mySpa.refreshOzoneMode()
-                
-                else:
-                    logger.warn(f"Not handled GeckoStructAccessor sender tag received: {sender.tag}")
-                    logger.warn(f"  --> {sender} changed from {old_value} to {new_value}")
-                    
+            elif sender.tag == "BL":
+                self._mySpa.refreshBlower()
+
+            elif sender.tag == "SwmRisk" or sender.tag == "SwmActive":
+                self._mySpa.refreshSmartWinterMode()
+
+            elif sender.tag == "O3":
+                self._mySpa.refreshOzoneMode()
+
+            else:
+                logger.warn(
+                    f"Not handled GeckoStructAccessor sender tag received: {sender.tag}")
+                logger.warn(
+                    f"  --> {sender} changed from {old_value} to {new_value}")
 
         else:
-            logger.warn (f"Change not check. Sender: {sender}, sender-type: {sender.type()}")
-
+            logger.warn(
+                f"Change not check. Sender: {sender}, sender-type: {sender.type()}")

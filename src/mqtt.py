@@ -11,12 +11,12 @@ from typing import List
 import paho.mqtt.client as paho
 from asyncio_paho import AsyncioPahoClient
 
-CONECTION_RC = ("MQTT Connection successful",
-                "MQTT Connection refused – incorrect protocol version",
-                "MQTT Connection refused – invalid client identifier",
-                "MQTT Connection refused – server unavailable",
-                "MQTT Connection refused – bad username or password",
-                "MQTT Connection refused – not authorised")
+CONNECTION_RC = ("MQTT Connection successful",
+                 "MQTT Connection refused – incorrect protocol version",
+                 "MQTT Connection refused – invalid client identifier",
+                 "MQTT Connection refused – server unavailable",
+                 "MQTT Connection refused – bad username or password",
+                 "MQTT Connection refused – not authorised")
 
 
 logger = logging.getLogger(__name__)
@@ -28,8 +28,8 @@ class Mqtt:
     """
     Return a mqtt.
 
-    The mqqt server name and optionally the port to inscribe need to be provide.
-    Username and passwort are provide when requesting to connect
+    The mqtt server name and optionally the port to connect need to be provided.
+    The username and password are provided later when requesting to connect
     """
 
     global client, logger
@@ -41,22 +41,23 @@ class Mqtt:
     # MQTT message receiver
     async def on_message_async(self, client, userdata, message):
         """
-        Messages fro top level TOPIC, not catched elsewhere
+        Messages from top level TOPIC, not caught elsewhere
         """
         topic = str(message.topic)
         msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'MQTT default on_message: topic: {topic}, payload: {msg}')
+        logger.debug(
+            f'MQTT default on_message: topic: {topic}, payload: {msg}')
 
-    # MQTT subscript during on_conect callback
+    # MQTT subscript during on_connect callback
     async def on_connect_async(self, client, userdata, flags, rc):
         if (rc == 0):
             logger.info(
-                f"MQTT successfull connected to broker {self.mqtt_server}")
-                    # test subscription
+                f"MQTT successfully connected to broker {self.mqtt_server}")
+            # test subscription
 
         else:
-            logger.error(f"Connection error number {rc} occured")
-            logger.error(f"Error: {CONECTION_RC[rc]}")
+            logger.error(f"Connection error number {rc} occurred")
+            logger.error(f"Error: {CONNECTION_RC[rc]}")
 
     # MQTT disconnect callback
     def on_subscribe(self, client, userdata, mid, granted_qos):

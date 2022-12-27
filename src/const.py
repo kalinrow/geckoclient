@@ -4,7 +4,9 @@ Constant used internally
 from config import TOPIC
 
 # GeckoClient version
-GECK_CLIENT_VERSION = "0.5"
+GECKO_CLIENT_VERSION = "0.5.1"
+
+
 
 # internal constants, please do not change
 TOPIC_CONTROL = TOPIC+"/control"
