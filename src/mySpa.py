@@ -41,15 +41,7 @@ class MySpa(GeckoAsyncSpaMan):
             self._can_use_facade = True
 
             # at least publish once all values once
-            self.refreshBlower()
-            self.refreshFilters()
-            self.refreshHeater()
-            self.refreshLights()
-            self.refreshPumps()
-            self.refreshReminders()
-            self.refreshWaterCare()
-            self.refreshOzoneMode()
-            self.refreshSmartWinterMode()
+            await self._refreshAll()
 
             # add the watcher to see all changes
             self._facade.watch(OnChange(self))
@@ -61,6 +53,23 @@ class MySpa(GeckoAsyncSpaMan):
             GeckoSpaState.ERROR_NEEDS_ATTENTION,
         ):
             self._can_use_facade = False
+
+    ########################
+    #
+    # Refresh all values
+    #
+    ###################
+
+    async def _refreshAll(self) -> None:
+        self.refreshBlower()
+        self.refreshFilters()
+        self.refreshHeater()
+        self.refreshLights()
+        self.refreshPumps()
+        self.refreshReminders()
+        self.refreshWaterCare()
+        self.refreshOzoneMode()
+        self.refreshSmartWinterMode()
 
     ########################
     #
@@ -321,6 +330,7 @@ class MySpa(GeckoAsyncSpaMan):
 
             self._onValueChange(const.TOPIC_OZONEMODE, json)
 
+    
     ################
     #
     # Switch the pump #  ON/OFF
@@ -411,7 +421,7 @@ class MySpa(GeckoAsyncSpaMan):
 
     ################
     #
-    # Sets the the watercare mode
+    # Sets the the water care mode
     #
     ##############
 
@@ -459,6 +469,21 @@ class MySpa(GeckoAsyncSpaMan):
                     logger.error(
                         f"Wrong temperature value received: {parts[1]}")
                     return
+
+    ################
+    #
+    # Refresh all MQTT values
+    #
+    ##############
+    async def refresh_all(self, client, userdata, message):
+        '''
+        Set the new target temperature
+        '''
+        topic = str(message.topic)
+        msg = str(message.payload.decode("UTF-8"))
+        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
+        if (msg == "refresh_all"):
+            await self._refreshAll()
 
 
 class OnChange():

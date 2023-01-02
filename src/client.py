@@ -117,6 +117,8 @@ async def main() -> None:
             const.TOPIC_BLOWERS + "/cmnd", spaman.set_blowers)
         await mqtt.subscribe_and_message_callback_async(
             const.TOPIC_WATERCARE + "/cmnd", spaman.set_watercare)
+        await mqtt.subscribe_and_message_callback_async(
+            const.TOPIC_CONTROL + "/cmnd", spaman.refresh_all)
 
         # get the facade
         facade = spaman.facade

@@ -9,10 +9,10 @@ So far the heater, water care, filter, the pumps and lights status as well as th
 The script has been written and tested only on a Linux machine. No idea, if it also works on a Windows host.
 For sure the service installation needs to be adapted.
 
-You need to have python 3 installed with the libraries geckolib and asyncio-paho.
+You need to have Python 3.8 or later installed with the libraries geckolib and asyncio-paho.
 
 ```console
-sudo apt install python3-pip
+sudo apt install python3-pip       # if not already installed
 sudo pip3 install geckolib==0.4.7
 sudo pip3 install asyncio-paho
 ```
@@ -45,7 +45,7 @@ See also comments from the developer of the geckolib on this topic under https:/
 ```config
 # SPA values
 SPA_NAME = "My Spa"
-SPA_IDENTIFIER = "SPAXX:XX:XX:XX:XX:XX"
+SPA_IDENTIFIER = "SPAxx:xx:xx:xx:x:xx"   # Please use lowercase characters
 SPA_IP_ADDRESS = "DHCP"   # either the IP address or DHCP in case of dynamic assignment
 
 
@@ -100,21 +100,25 @@ To check the status of the service use
 ``` 
 sudo systemctl status gecko.service
 ```
-# SPA controlers
+# SPA controllers
+
+## Republish all values
+To republish all values use command topic `%prefix%/control/cmnd` and send the text `refresh_all` 
+
 ## Control the light
-The lights can be switched via the broker. To do so simple use the command topic `%prefix%/whirlpool/lights/cmnd` and send the text `set_lights=HI` for on and `set_lights=OFF` for off.
+The lights can be switched via the broker. To do so simple use the command topic `%prefix%/lights/cmnd` and send the text `set_lights=HI` for on and `set_lights=OFF` for off.
 
 ## Control the temperature
-The temperature can be the broker. To do so  use the command topic `%prefix%/whirlpool/water_heater/cmnd` and send the text `set_temp=TEMP` where _TEMP_ is the desired temperature (only CELSIUS values from 15 to 40 are allowed).
+The temperature can be the broker. To do so  use the command topic `%prefix%/water_heater/cmnd` and send the text `set_temp=TEMP` where _TEMP_ is the desired temperature (only CELSIUS values from 15 to 40 are allowed).
 
 ## Control the pumps
-Pumps can also be switched via the broker. To do so use the command topic `%prefix%/whirlpool/pumps/cmnd` with payload `set_pump:PUMP=[HI|OFF]`. Where _PUMP_ is the pump number (zero based, so first pump is 0) and _HI/OFF_ will switch ON or OFF the pump.
+Pumps can also be switched via the broker. To do so use the command topic `%prefix%/pumps/cmnd` with payload `set_pump:PUMP=[HI|OFF]`. Where _PUMP_ is the pump number (zero based, so first pump is 0) and _HI/OFF_ will switch ON or OFF the pump.
 
 ## Control the first blower
-The first blower can be switched via the broker. To do so use the command topic `%prefix%/whirlpool/blowers/cmnd` with payload `set_blower=[HI|OFF]`. Where  _HI/OFF_ will switch ON or OFF the first blower.
+The first blower can be switched via the broker. To do so use the command topic `%prefix%/blowers/cmnd` with payload `set_blower=[HI|OFF]`. Where  _HI/OFF_ will switch ON or OFF the first blower.
 
-## Control the watercare mode
-The water care mode can be set via the broker. To do so use the command topic `%prefix%/whirlpool/watercare/cmnd` with payload `set_wartercare=[MODE]`. Where _MODE_ is one of the values below (you can use either the integer or the string value):
+## Control the water care mode
+The water care mode can be set via the broker. To do so use the command topic `%prefix%/watercare/cmnd` with payload `set_watercare=[MODE]`. Where _MODE_ is one of the values below (you can use either the integer or the string value):
 * 0 = "Away From Home"
 * 1 = "Standard"
 * 2 = "Energy Saving"
@@ -169,10 +173,16 @@ Licensed under the EUPL-1.2-or-later.
 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 
-# Improvment ideas
+# Improvement ideas
+* Switch command topic values to json format
 * Error handling not able to find/connect to a spa
 
 # History
+
+### v0.5.2
+* BugFix #3: Spa check interval configured as string instead of integer in const.py
+* Added missing configuration values in config.py-template
+* Adding refresh_all command to re-publish all values
 
 ### v0.5.1
 * Adding log level option for geckolib in config.py
@@ -184,7 +194,7 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
     * BACKUP_COUNT needs to be provided 
 * Fixing publishing filter values
 * Adding smart winter and ozone mode values
-* Adding setting of first blower and wate care mode (thanks to Macus)
+* Adding setting of first blower and water care mode (thanks to Macus)
 * Add BACKUP_COUNT option in config.py
 
 

@@ -16,7 +16,7 @@ BROKER_PORT = 1883
 BROKER_USERNAME = "username"  # set to None to not using username and password
 BROKER_PASSWORD = "password"  # set to None to not using username and password
 BROKER_ID = "geckoclient"
-BROKER_INTERVAL = "10"
+BROKER_INTERVAL = 10
 
 # Topic
 TOPIC = "whirlpool"
@@ -28,5 +28,7 @@ LOGFILE = "/var/log/geckoclient.log"
 # can be one of the following strings
 #   'CRITICAL','FATAL', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'NOTSET'
 DEBUG_LEVEL = 'INFO'
-
+GECKOLIB_DEBUG_LEVEL = 'WARN'
+# number of log files to keep
+BACKUP_COUNT=5
 
