@@ -1,5 +1,17 @@
 {
     "cSpell.words": [
-        "MQTT"
+        "cmnd",
+        "geckoclient",
+        "geckolib",
+        "levelname",
+        "MQTT",
+        "OZONEMODE",
+        "paho",
+        "signum",
+        "SIGTERM",
+        "SMARTWINTERMODE",
+        "spaman",
+        "watercare",
+        "WATERHEAT"
     ]
 }

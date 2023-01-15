@@ -28,7 +28,7 @@ If you update from an older version, please stop the service before coping  the 
    ```
 3. Copy the config template to `config.py`
    ```
-   cp src/config.py_template /opt/geckoclient
+   cp src/config.py_template /opt/geckoclient/config.py
    ```
 
 ## Configuration
@@ -178,6 +178,12 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 * Error handling not able to find/connect to a spa
 
 # History
+
+### v0.5.3
+* Forced decimal separator to point
+* Added a check, if facade is ready. Log the error and exit gracefully.
+* Improved unexpected disconnection handling
+* Added publishing filter status
 
 ### v0.5.2
 * BugFix #3: Spa check interval configured as string instead of integer in const.py

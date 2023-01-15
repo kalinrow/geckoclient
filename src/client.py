@@ -7,9 +7,8 @@
 """
 
 # import configuration variables
-from math import factorial
-import config
-import const
+import locale
+import sys
 
 import logging
 import logging.handlers
@@ -22,6 +21,9 @@ from paho.mqtt.client import MQTT_ERR_QUEUE_SIZE
 
 from geckolib import GeckoConstants, GeckoSpaState
 
+# own modules
+import config
+import const
 from mySpa import MySpa
 
 # keep running until terminated
@@ -72,6 +74,7 @@ def prepare_logger():
     # add rtf to logger
     root.addHandler(rfh)
 
+
 ######################
 #
 # Main routine connecting to the SPA and start looping
@@ -81,7 +84,12 @@ def prepare_logger():
 
 async def main() -> None:
 
+    # force decimal separator to point
+    locale._override_localeconv = {'decimal_point': '.'}
+    locale._override_localeconv = {'thousands_sep': ','}
+
     # prepare MQTT
+    logger.info("Connecting to MQTT...")
     mqtt = Mqtt(config.BROKER_ADDRESS, config.BROKER_PORT)
 
     result = await mqtt.connect_mqtt(config.BROKER_USERNAME, config.BROKER_PASSWORD)
@@ -89,6 +97,7 @@ async def main() -> None:
         logger.error("Stopping - Can't connect to broker")
         exit(1)
 
+    # get IP of the SPA if set
     ip = 'DHCP'
     try:
         ip = config.SPA_IP_ADDRESS
@@ -96,6 +105,7 @@ async def main() -> None:
         if ip == "DHCP":
             ip = None
 
+    logger.info("Connecting to SPA...")
     async with MySpa(config.CLIENT_ID, spa_address=ip, spa_identifier=config.SPA_IDENTIFIER, spa_name=config.SPA_NAME) as spaman:
 
         await asyncio.sleep(GeckoConstants.ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD)
@@ -104,7 +114,12 @@ async def main() -> None:
         spaman.onValueChange(mqtt.publish_state)
 
         # Now wait for the facade to be ready
-        await spaman.wait_for_facade()
+        is_facade_ready = await spaman.wait_for_facade()
+        if not is_facade_ready:
+            logger.error(
+                "Stopping - Can't connect to facade. Please check settings.")
+            mqtt.close()
+            exit(1)
 
         # subscribe and add callbacks
         await mqtt.subscribe_and_message_callback_async(
@@ -123,24 +138,15 @@ async def main() -> None:
         # get the facade
         facade = spaman.facade
 
-        logger.info("GeckoClient starting...")
-        logger.info("GC Version     : " + const.GECKO_CLIENT_VERSION)
-        logger.info("Spa Name       : " + spaman.facade.spa.descriptor.name)
-        logger.info("Spa Version    : " + spaman.facade.spa.version)
-        logger.info("Spa Revision   : " + spaman.facade.spa.revision)
-        logger.info("Spa IP address : " +
-                    spaman.facade.spa.descriptor.ipaddress)
-
-        reconnectButton = spaman.reconnect_button
-
-        # Start loop until break signal received
-
+        # set initial values
         try:
             broker_int = config.BROKER_INTERVAL
         except:
             broker_int = 10
         refresh_counter = 0
+        reconnect_counter = 0
 
+        # Start loop until break signal received
         while not stop_service:
 
             refresh_counter += 1
@@ -149,8 +155,16 @@ async def main() -> None:
 
                 refresh_counter = 1
                 if spaman.spa_state is not GeckoSpaState.CONNECTED:
-                    logger.info("Reconnecting...")
-                    await reconnectButton.async_press()
+                    logger.warn("SPA is not connected. Trying to reconnect...")
+                    reconnect_counter += 1
+                    await spaman.async_connect(spa_address=ip, spa_identifier=config.SPA_IDENTIFIER)
+                    if (reconnect_counter > 5):
+                        logger.error(
+                            "Can't reconnect after 5 attempts. Quitting now...")
+                        mqtt.close()
+                        exit(2)
+                else:
+                    reconnect_counter = 0
 
             await asyncio.sleep(1)
 
@@ -167,6 +181,10 @@ if __name__ == "__main__":
     # prepare the logging
     prepare_logger()
     logger = logging.getLogger("geckoclient")
+    logger.info("GeckoClient starting...")
+    logger.info("Python version : " + sys.version)
+    logger.info("GC Version     : " + const.GECKO_CLIENT_VERSION)
+    logger.info("Decimal Sep.   : " + locale.localeconv()["decimal_point"])
 
     # add signal listeners
     signal.signal(signal.SIGINT, handler_stop_signals)

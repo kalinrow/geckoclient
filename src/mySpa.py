@@ -37,7 +37,16 @@ class MySpa(GeckoAsyncSpaMan):
         # Uncomment this line to see events generated
         # print(f"{event}: {kwargs}")
 
+        if event == GeckoSpaEvent.CONNECTION_SPA_COMPLETE:
+            logger.info("Connection to SPA is ready.")
+            logger.info("Spa Name       : " + self._spa.descriptor.name)
+            logger.info("Spa Version    : " + self._spa.version)
+            logger.info("Spa Revision   : " + self._spa.revision)
+            logger.info("Spa IP address : " + self._spa.descriptor.ipaddress)
+
         if event == GeckoSpaEvent.CLIENT_FACADE_IS_READY:
+
+            logger.info("SPA facade is ready.")
             self._can_use_facade = True
 
             # at least publish once all values once
@@ -103,14 +112,13 @@ class MySpa(GeckoAsyncSpaMan):
 
             json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
             json += f'"mode":{mode}, "modes":['
-            i = 0
-            for modetxt in modes:
+
+            for index, mode_text in enumerate(modes):
                 json += "{"
-                json += f'"text":"{modes[i]}",'
-                json += f'"value":{i}}}'
-                if (i < mode_len):
-                    json += ","
-                i += 1
+                json += f'"text":"{mode_text}",'
+                json += f'"value":{index}}},'
+
+            json = json[:-1]  # remove last comma
             json += f'], "mode(txt)":"{mode_txt}"'
             json += '}'
 
@@ -330,7 +338,6 @@ class MySpa(GeckoAsyncSpaMan):
 
             self._onValueChange(const.TOPIC_OZONEMODE, json)
 
-    
     ################
     #
     # Switch the pump #  ON/OFF
@@ -512,7 +519,7 @@ class OnChange():
             elif sender.tag == "CP" or sender.tag == "P1" or sender.tag == "P2" or sender.tag == "P3":
                 self._mySpa.refreshPumps()
 
-            elif sender.tag == "SetpointG" or sender.tag == "RealSetPointG" or sender.tag == "DisplayedTempG":
+            elif sender.tag == "SetpointG" or sender.tag == "RealSetPointG" or sender.tag == "DisplayedTempG" or sender.tag == "Heating":
                 self._mySpa.refreshHeater()
 
             elif sender.tag == "BL":
@@ -523,6 +530,9 @@ class OnChange():
 
             elif sender.tag == "O3":
                 self._mySpa.refreshOzoneMode()
+
+            elif sender.tag == "Clean" or sender.tag == "Purge":
+                self._mySpa.refreshFilters()
 
             else:
                 logger.warn(
