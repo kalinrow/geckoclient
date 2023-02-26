@@ -3,7 +3,7 @@
     Client program for GeckoLib. Publishes most relevant data
     on a configured broker.
 
-    version 0.5.3
+    version 0.5.4
 """
 
 # import configuration variables

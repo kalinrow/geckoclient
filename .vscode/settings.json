@@ -1,10 +1,14 @@
 {
     "cSpell.words": [
+        "asyncio",
         "cmnd",
+        "gazoodle",
         "geckoclient",
         "geckolib",
         "levelname",
+        "LOGFILE",
         "MQTT",
+        "NOTSET",
         "OZONEMODE",
         "paho",
         "signum",

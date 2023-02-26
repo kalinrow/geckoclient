@@ -118,7 +118,7 @@ Pumps can also be switched via the broker. To do so use the command topic `%pref
 The first blower can be switched via the broker. To do so use the command topic `%prefix%/blowers/cmnd` with payload `set_blower=[HI|OFF]`. Where  _HI/OFF_ will switch ON or OFF the first blower.
 
 ## Control the water care mode
-The water care mode can be set via the broker. To do so use the command topic `%prefix%/watercare/cmnd` with payload `set_watercare=[MODE]`. Where _MODE_ is one of the values below (you can use either the integer or the string value):
+The water care mode can be set via the broker. To do so use the command topic `%prefix%/water_care/cmnd` with payload `set_watercare=[MODE]`. Where _MODE_ is one of the values below (you can use either the integer or the string value):
 * 0 = "Away From Home"
 * 1 = "Standard"
 * 2 = "Energy Saving"
@@ -155,7 +155,7 @@ Now changes are reported immediately. Still there is a 2 minuted gap after the s
 If you suffer from high CPU usage you can change the yield value for asyncio sleep time.
 That will dramatically reduce the CPU usage.
 
-To do so, change the value _ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD_ in gecklib `const.py` in geckolib main folder (see above) from 0.001 to 0.02. The latter value works well for me.
+To do so, change the value _ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD_ in geckolib `const.py` in geckolib main folder (see above) from 0.001 to 0.02. The latter value works well for me.
 ```python
     CONNECTION_STEP_PAUSE_IN_SECONDS = 0  # Time between connection steps
     MAX_RF_ERRORS_BEFORE_HALT = 50
@@ -179,6 +179,10 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 # History
 
+### v0.5.4
+* Fix bug that water care mode could not be set
+* Fix error describing setting of water care mode in README.md
+
 ### v0.5.3
 * Forced decimal separator to point
 * Added a check, if facade is ready. Log the error and exit gracefully.
@@ -200,7 +204,7 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
     * BACKUP_COUNT needs to be provided 
 * Fixing publishing filter values
 * Adding smart winter and ozone mode values
-* Adding setting of first blower and water care mode (thanks to Macus)
+* Adding setting of first blower and water care mode (thanks to Marcus)
 * Add BACKUP_COUNT option in config.py
 
 

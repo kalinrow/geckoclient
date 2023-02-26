@@ -443,7 +443,7 @@ class MySpa(GeckoAsyncSpaMan):
             parts = msg.split("=")
             if len(parts) == 2:
                 try:
-                    mode = parts[1]
+                    mode = int(parts[1])
                 except:
                     logger.error(f"Wrong mode received: {parts[1]}")
                     return
