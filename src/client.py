@@ -6,7 +6,7 @@
     version 0.5.4
 """
 
-# import configuration variables
+# import python modules
 import locale
 import sys
 
@@ -16,15 +16,18 @@ import logging.handlers
 import asyncio
 import signal
 
+# import custom modules
 from mqtt import Mqtt
 from paho.mqtt.client import MQTT_ERR_QUEUE_SIZE
 
 from geckolib import GeckoConstants, GeckoSpaState
 
-# own modules
+# own module
+from mySpa import MySpa
+
+# import config
 import config
 import const
-from mySpa import MySpa
 
 # keep running until terminated
 stop_service = False
