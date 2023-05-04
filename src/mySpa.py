@@ -122,7 +122,7 @@ class MySpa(GeckoAsyncSpaMan):
             cjson += f'], "mode(txt)":"{mode_txt}"'
             cjson += '}'
 
-            self._onValueChange(const.TOPIC_WATERCARE, json)
+            self._onValueChange(const.TOPIC_WATERCARE, cjson)
 
     ########################
     #
