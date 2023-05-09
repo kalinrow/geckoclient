@@ -1,10 +1,10 @@
 """ Sample client demonstrating async use of GeckoLib """
 # import configuration variables
 import config
-
 import const
 
 import asyncio
+import json
 import logging
 
 from datetime import datetime
@@ -93,7 +93,7 @@ class MySpa(GeckoAsyncSpaMan):
         else:
             logger.debug("Refreshing water care data")
 
-            # get's the values for water care module and create a nice json payload
+            # get the values for water care module and create a nice json payload
 
             # get care mode
             mode = self._facade.water_care.mode
@@ -110,19 +110,19 @@ class MySpa(GeckoAsyncSpaMan):
 
             mode_len = len(modes) - 1
 
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            json += f'"mode":{mode}, "modes":['
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+            cjson += f'"mode":{mode}, "modes":['
 
             for index, mode_text in enumerate(modes):
-                json += "{"
-                json += f'"text":"{mode_text}",'
-                json += f'"value":{index}}},'
+                cjson += "{"
+                cjson += f'"text":"{mode_text}",'
+                cjson += f'"value":{index}}},'
 
-            json = json[:-1]  # remove last comma
-            json += f'], "mode(txt)":"{mode_txt}"'
-            json += '}'
+            cjson = cjson[:-1]  # remove last comma
+            cjson += f'], "mode(txt)":"{mode_txt}"'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_WATERCARE, json)
+            self._onValueChange(const.TOPIC_WATERCARE, cjson)
 
     ########################
     #
@@ -139,12 +139,12 @@ class MySpa(GeckoAsyncSpaMan):
             # get actual time
             now = datetime.now()  # current date and time
 
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
             for blower in self._facade.blowers:
-                json += f',"{blower.name}":"{blower.state_sensor().state}"'
-            json += '}'
+                cjson += f',"{blower.name}":"{blower.state_sensor().state}"'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_BLOWERS, json)
+            self._onValueChange(const.TOPIC_BLOWERS, cjson)
 
     ########################
     #
@@ -163,18 +163,18 @@ class MySpa(GeckoAsyncSpaMan):
             now = datetime.now()  # current date and time
 
             # loop over all pumps
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
             for pump in self._facade.pumps:
-                json += f',"{pump.name}":"{pump.mode}"'
+                cjson += f',"{pump.name}":"{pump.mode}"'
 
             # find circulation pump
             for sensor in self._facade.binary_sensors:
                 if sensor.key == "CIRCULATING PUMP":
-                    json += f',"{sensor.name}":"{sensor.state}"'
+                    cjson += f',"{sensor.name}":"{sensor.state}"'
                     break
-            json += '}'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_PUMPS, json)
+            self._onValueChange(const.TOPIC_PUMPS, cjson)
 
     ########################
     #
@@ -190,12 +190,12 @@ class MySpa(GeckoAsyncSpaMan):
             # get actual time
             now = datetime.now()  # current date and time
 
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '"'
             for light in self._facade.lights:
-                json += f',"{light.name}":"{light.state_sensor().state}"'
-            json += '}'
+                cjson += f',"{light.name}":"{light.state_sensor().state}"'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_LIGHTS, json)
+            self._onValueChange(const.TOPIC_LIGHTS, cjson)
 
     ########################
     #
@@ -212,15 +212,15 @@ class MySpa(GeckoAsyncSpaMan):
             # get actual time
             now = datetime.now()  # current date and time
 
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            json += f'"current_operation": "{self._facade.water_heater.current_operation}",'
-            json += f'"temperature_unit":"{self._facade.water_heater.temperature_unit}",'
-            json += f'"current_temperature":{self._facade.water_heater.current_temperature},'
-            json += f'"target_temperature":{self._facade.water_heater.target_temperature},'
-            json += f'"real_target_temperature":{self._facade.water_heater.real_target_temperature}'
-            json += '}'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+            cjson += f'"current_operation": "{self._facade.water_heater.current_operation}",'
+            cjson += f'"temperature_unit":"{self._facade.water_heater.temperature_unit}",'
+            cjson += f'"current_temperature":{self._facade.water_heater.current_temperature},'
+            cjson += f'"target_temperature":{self._facade.water_heater.target_temperature},'
+            cjson += f'"real_target_temperature":{self._facade.water_heater.real_target_temperature}'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_WATERHEAT, json)
+            self._onValueChange(const.TOPIC_WATERHEAT, cjson)
 
     ########################
     #
@@ -247,18 +247,18 @@ class MySpa(GeckoAsyncSpaMan):
             # get actual time
             now = datetime.now()  # current date and time
 
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            #json += '{'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+            #cjson += '{'
             i = 0
             for reminder in reminders:
-                json += f'"{reminder.description}":"{reminder.days}"'
+                cjson += f'"{reminder.description}":"{reminder.days}"'
                 if (i < reminders_len):
-                    json += ","
+                    cjson += ","
                 i += 1
-            json += '}'
+            cjson += '}'
 
-            if json is not None:
-                self._onValueChange(const.TOPIC_REMINDERS, json)
+            if cjson is not None:
+                self._onValueChange(const.TOPIC_REMINDERS, cjson)
 
     ########################
     #
@@ -281,12 +281,12 @@ class MySpa(GeckoAsyncSpaMan):
 
             # get actual time
             now = datetime.now()  # current date and time
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            json += f'"Filter Status:Clean":"{str(filerStatusClean).lower()}",'
-            json += f'"Filter Status:Purge":"{str(filerStatusPurge).lower()}"'
-            json += '}'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+            cjson += f'"Filter Status:Clean":"{str(filerStatusClean).lower()}",'
+            cjson += f'"Filter Status:Purge":"{str(filerStatusPurge).lower()}"'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_FILTER_STATUS, json)
+            self._onValueChange(const.TOPIC_FILTER_STATUS, cjson)
 
     ########################
     #
@@ -308,12 +308,12 @@ class MySpa(GeckoAsyncSpaMan):
 
             # get actual time
             now = datetime.now()  # current date and time
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            json += f'"Smart Winter Mode:Active":"{str(swmActive).lower()}",'
-            json += f'"Smart Winter Mode:Risk":"{str(swmRisk).lower()}"'
-            json += '}'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+            cjson += f'"Smart Winter Mode:Active":"{str(swmActive).lower()}",'
+            cjson += f'"Smart Winter Mode:Risk":"{str(swmRisk).lower()}"'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_SMARTWINTERMODE, json)
+            self._onValueChange(const.TOPIC_SMARTWINTERMODE, cjson)
 
     ########################
     #
@@ -332,174 +332,91 @@ class MySpa(GeckoAsyncSpaMan):
 
             # get actual time
             now = datetime.now()  # current date and time
-            json = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            json += f'"Ozone Mode":"{str(ozoneMode).lower()}"'
-            json += '}'
+            cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
+            cjson += f'"Ozone Mode":"{str(ozoneMode).lower()}"'
+            cjson += '}'
 
-            self._onValueChange(const.TOPIC_OZONEMODE, json)
+            self._onValueChange(const.TOPIC_OZONEMODE, cjson)
 
     ################
     #
-    # Switch the pump #  ON/OFF
+    # Controls
     #
     ##############
-
-    async def set_pumps(self, client, userdata, message):
+    async def controls(self, client, userdata, message):
         '''
-        Switch pump state
+        Controlling the spa
         '''
+        try:
+            msg = json.loads(message.payload.decode('UTF-8'))
+        except Exception as ex:
+            logger.warning(f"Invalid JSON in mqtt message: {ex.args}")
         topic = str(message.topic)
-        msg = str(message.payload.decode("UTF-8"))
         logger.debug(f'msg received: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_pump")):
-            # get pump
-            values = msg.split(":")
-            if len(values) != 2:
-                logger.warn("Wrong payload of setting pumps received.")
+        if "lights" in msg and self.facade.lights[0] is not None:
+            if msg["lights"] == "on":
+                logger.info("Switching lights on")
+                await self._facade.lights[0].async_turn_on()
+            elif msg["lights"] == "off":
+                logger.info("Switching lights off")
+                await self._facade.lights[0].async_turn_off()
+        if "pump1" in msg:
+            if msg["pump1"] == "off":
+                logger.info("Switching pump 1 on")
+                await self._facade.pumps[0].set_mode("OFF")
+            elif msg["pump1"] == "low":
+                logger.info("Switching pump 1 to low")
+                await self._facade.pumps[0].set_mode("LO")
+            elif msg["pump1"] == "high":
+                logger.info("Switching pump 1 to high")
+                await self._facade.pumps[0].set_mode("HI")
+        if "pump2" in msg:
+            if 2 > len(self._facade.pumps):
+                logger.warning(f"Pump number 2 does not exist.")
                 return
-            parts = values[1].split("=")
-            if len(parts) != 2:
-                logger.warn("Wrong payload of setting pumps received.")
-                return
-            # payload seems to be OK --> proceed
+            if msg["pump2"] == "off":
+                logger.info("Switching pump 2 on")
+                await self._facade.pumps[1].set_mode("OFF")
+            elif msg["pump2"] == "low":
+                logger.info("Switching pump 2 to low")
+                await self._facade.pumps[1].set_mode("LO")
+            elif msg["pump2"] == "high":
+                logger.info("Switching pump 2 to high")
+                await self._facade.pumps[1].set_mode("HI")
+        if "temp" in msg:
             try:
-                pump = int(parts[0])
+                temp = float(msg["temp"])
             except Exception as ex:
-                logger.warn(f"Pump number conversion error: {ex.args}")
+                logger.warning(f"Wrong temperature value received")
                 return
-            if pump < 0 or pump > len(self._facade.pumps):
-                logger.warn(f"Pump number {pump} does not exist.")
+            if temp < 5 and temp > 40:
+                logger.warning(f"Temperature {temp} outside allowed values")
                 return
-
-            if "HI" == parts[1]:
-                logger.info(f"Switching pump {pump} on")
-                await self._facade.pumps[pump].async_set_mode("HI")
-            elif "OFF" == parts[1]:
-                logger.info(f"Switching pump {pump}  off")
-                await self._facade.pumps[pump].async_set_mode("OFF")
-
-    ################
-    #
-    # Switch the first light ON/OFF
-    #
-    ##############
-
-    async def set_lights(self, client, userdata, message):
-        '''
-        Switch light state
-        '''
-        topic = str(message.topic)
-        msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_lights")) and self.facade.lights[0] is not None:
-            parts = msg.split("=")
-            if len(parts) == 2:
-                if "HI" == parts[1]:
-                    logger.info("Switching lights on")
-                    await self._facade.lights[0].async_turn_on()
-                    logger.info("Light switched on")
-                elif "OFF" == parts[1]:
-                    logger.info("Switching lights off")
-                    await self._facade.lights[0].async_turn_off()
-
-    ################
-    #
-    # Switch the first blower ON/OFF
-    #
-    ##############
-
-    async def set_blowers(self, client, userdata, message):
-        '''
-        Switch blower state
-        '''
-        topic = str(message.topic)
-        msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_blower")) and self.facade.blowers[0] is not None:
-            parts = msg.split("=")
-            if len(parts) == 2:
-                if "HI" == parts[1]:
-                    logger.info("Switching blower on")
-                    await self._facade.blowers[0].async_turn_on()
-                    logger.info("Blower switched on")
-                elif "OFF" == parts[1]:
-                    logger.info("Switching blower off")
-                    await self._facade.blowers[0].async_turn_off()
-
-    ################
-    #
-    # Sets the the water care mode
-    #
-    ##############
-
-    async def set_watercare(self, client, userdata, message):
-        '''
-        Set water care mode
-        '''
-        topic = str(message.topic)
-        msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_watercare")):
-            parts = msg.split("=")
-            if len(parts) == 2:
-                try:
-                    mode = int(parts[1])
-                except:
-                    logger.error(f"Wrong mode received: {parts[1]}")
-                    return
-                await self._facade.water_care.async_set_mode(mode)
-
-    ################
-    #
-    # Sets the the temperature
-    #
-    ##############
-    async def set_temperature(self, client, userdata, message):
-        '''
-        Set the new target temperature
-        '''
-        topic = str(message.topic)
-        msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
-        if (msg.startswith("set_temp")):
-            parts = msg.split("=")
-            if len(parts) == 2:
-                try:
-                    temp = float(parts[1])
-                    if temp < 15 and temp > 40:
-                        logger.warn(
-                            f"Temperature {temp} outside allowed values")
-                        return
-                    await self.facade.water_heater.async_set_target_temperature(temp)
-                    logger.info(f"Target temperature set to {temp}")
-                except:
-                    logger.error(
-                        f"Wrong temperature value received: {parts[1]}")
-                    return
-
-    ################
-    #
-    # Refresh all MQTT values
-    #
-    ##############
-    async def refresh_all(self, client, userdata, message):
-        '''
-        Set the new target temperature
-        '''
-        topic = str(message.topic)
-        msg = str(message.payload.decode("UTF-8"))
-        logger.debug(f'msg received: topic: {topic}, payload: {msg}')
-        if (msg == "refresh_all"):
-            await self._refreshAll()
-
+            await self._facade.water_heater.set_target_temperature(temp)
+        if "blower" in msg and self.facade.blowers[0] is not None:
+            if msg["blower"] == "high":
+                logger.info("Switching blower on")
+                await self._facade.blowers[0].async_turn_on()
+            elif msg["blower"] == "off":
+                logger.info("Switching blower on")
+                await self._facade.blowers[0].async_turn_off()
+        if "watercare" in msg:
+            try:
+                mode = int(msg["watercare"])
+            except:
+                logger.error(f"Wrong mode received: {mode}")
+                return
+            await self._facade.water_care.async_set_mode(mode)
+        if "refresh" in msg:
+            if msg["refresh"] == "all":
+                await self._refreshAll()
 
 class OnChange():
     def __init__(self, mySpa: MySpa) -> None:
         self._mySpa = mySpa
 
     def __call__(self, sender, old_value, new_value):
-        logger.debug(
-            f"on_spa_change: >{sender}< changed from {old_value} to {new_value}")
+        logger.debug(f"on_spa_change: >{sender}< changed from {old_value} to {new_value}")
         print(f">{sender}< changed from {old_value} to {new_value}")
 
         # only if facade is ready
@@ -535,11 +452,8 @@ class OnChange():
                 self._mySpa.refreshFilters()
 
             else:
-                logger.warn(
-                    f"Not handled GeckoStructAccessor sender tag received: {sender.tag}")
-                logger.warn(
-                    f"  --> {sender} changed from {old_value} to {new_value}")
+                logger.warning(f"Not handled GeckoStructAccessor sender tag received: {sender.tag}")
+                logger.warning(f"  --> {sender} changed from {old_value} to {new_value}")
 
         else:
-            logger.warn(
-                f"Change not check. Sender: {sender}, sender-type: {sender.type()}")
+            logger.warning(f"Change not check. Sender: {sender}, sender-type: {sender.type()}")

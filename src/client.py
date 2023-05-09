@@ -6,7 +6,7 @@
     version 0.5.4
 """
 
-# import configuration variables
+# import python modules
 import locale
 import sys
 
@@ -16,15 +16,18 @@ import logging.handlers
 import asyncio
 import signal
 
+# import custom modules
 from mqtt import Mqtt
 from paho.mqtt.client import MQTT_ERR_QUEUE_SIZE
 
 from geckolib import GeckoConstants, GeckoSpaState
 
-# own modules
+# own module
+from mySpa import MySpa
+
+# import config
 import config
 import const
-from mySpa import MySpa
 
 # keep running until terminated
 stop_service = False
@@ -123,17 +126,7 @@ async def main() -> None:
 
         # subscribe and add callbacks
         await mqtt.subscribe_and_message_callback_async(
-            const.TOPIC_WATERHEAT + "/cmnd", spaman.set_temperature)
-        await mqtt.subscribe_and_message_callback_async(
-            const.TOPIC_LIGHTS + "/cmnd", spaman.set_lights)
-        await mqtt.subscribe_and_message_callback_async(
-            const.TOPIC_PUMPS + "/cmnd", spaman.set_pumps)
-        await mqtt.subscribe_and_message_callback_async(
-            const.TOPIC_BLOWERS + "/cmnd", spaman.set_blowers)
-        await mqtt.subscribe_and_message_callback_async(
-            const.TOPIC_WATERCARE + "/cmnd", spaman.set_watercare)
-        await mqtt.subscribe_and_message_callback_async(
-            const.TOPIC_CONTROL + "/cmnd", spaman.refresh_all)
+            const.TOPIC_CONTROL, spaman.controls)
 
         # get the facade
         facade = spaman.facade
