@@ -3,7 +3,7 @@
     Client program for GeckoLib. Publishes most relevant data
     on a configured broker.
 
-    version 0.5.4
+    version 0.6.0
 """
 
 # import python modules
@@ -148,7 +148,7 @@ async def main() -> None:
 
                 refresh_counter = 1
                 if spaman.spa_state is not GeckoSpaState.CONNECTED:
-                    logger.warn("SPA is not connected. Trying to reconnect...")
+                    logger.warning("SPA is not connected. Trying to reconnect...")
                     reconnect_counter += 1
                     await spaman.async_connect(spa_address=ip, spa_identifier=config.SPA_IDENTIFIER)
                     if (reconnect_counter > 5):

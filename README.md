@@ -13,7 +13,7 @@ You need to have Python 3.8 or later installed with the libraries geckolib and a
 
 ```console
 sudo apt install python3-pip       # if not already installed
-sudo pip3 install geckolib==0.4.7
+sudo pip3 install geckolib==0.4.8
 sudo pip3 install asyncio-paho
 ```
 
@@ -101,31 +101,30 @@ To check the status of the service use
 sudo systemctl status gecko.service
 ```
 # SPA controllers
+Since version 0.6.x teh SPA is controlled by only one control topic `%prefix%/control`. The message has been transferred into a JSON string. The different items con be controlled as following
 
-## Republish all values
-To republish all values use command topic `%prefix%/control/cmnd` and send the text `refresh_all` 
+| Item | JSON String | Comment |
+| ---- | ----- | --- |
+| Lights | {"lights":"off&#124;on"} |
+| Temperature | {"temp":TEMP} | TEMP is between 15.0 and 40.0 in steps of 0.5 |
+| Pumps | {"pumpX":"off&#124;low&#124;high"} | Not all SPA support 'low' value |
+| Blower | {"blower":"off&#124;high"} |
+| Watercare | {"watercare":"MODE"} | See below for possible MODE values | 
+| Refresh All | {"refresh":"all"} |
 
-## Control the light
-The lights can be switched via the broker. To do so simple use the command topic `%prefix%/lights/cmnd` and send the text `set_lights=HI` for on and `set_lights=OFF` for off.
-
-## Control the temperature
-The temperature can be the broker. To do so  use the command topic `%prefix%/water_heater/cmnd` and send the text `set_temp=TEMP` where _TEMP_ is the desired temperature (only CELSIUS values from 15 to 40 are allowed).
-
-## Control the pumps
-Pumps can also be switched via the broker. To do so use the command topic `%prefix%/pumps/cmnd` with payload `set_pump:PUMP=[HI|OFF]`. Where _PUMP_ is the pump number (zero based, so first pump is 0) and _HI/OFF_ will switch ON or OFF the pump.
-
-## Control the first blower
-The first blower can be switched via the broker. To do so use the command topic `%prefix%/blowers/cmnd` with payload `set_blower=[HI|OFF]`. Where  _HI/OFF_ will switch ON or OFF the first blower.
-
-## Control the water care mode
-The water care mode can be set via the broker. To do so use the command topic `%prefix%/water_care/cmnd` with payload `set_watercare=[MODE]`. Where _MODE_ is one of the values below (you can use either the integer or the string value):
-* 0 = "Away From Home"
+Watercare mode is one of the values below (you can use either the integer or the string value):
+* 0 = "Away From Home" 
 * 1 = "Standard"
 * 2 = "Energy Saving"
 * 3 = "Super Energy Saving"
 * 4 = "Weekender"
 
+
+
 # Known Issues
+
+## Version 0.6.0 is a breaking change
+The control topic and messages have been changed from version 0.6.0. From this version only one command topic `%prefix%\control` is used to control the SPA. And the message has been switched to JSON.
 
 ## Long waiting time for receiving value change notification
 Without manipulating the geckolib, receiving changed values might take up to 2 minutes. I was not able to figure out why.
@@ -174,10 +173,15 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 
 # Improvement ideas
-* Switch command topic values to json format
+* (DONE) Switch command topic values to json format
 * Error handling not able to find/connect to a spa
 
 # History
+
+### v0.6.0
+* Breaking change
+* Switch to one command topic and change value to json format
+* Update to use geckolib v0.4.8
 
 ### v0.5.4
 * Fix bug that water care mode could not be set

@@ -248,7 +248,7 @@ class MySpa(GeckoAsyncSpaMan):
             now = datetime.now()  # current date and time
 
             cjson = '{"Time":"' + now.strftime("%d.%m.%Y, %H:%M:%S") + '",'
-            #cjson += '{'
+            # cjson += '{'
             i = 0
             for reminder in reminders:
                 cjson += f'"{reminder.description}":"{reminder.days}"'
@@ -360,56 +360,55 @@ class MySpa(GeckoAsyncSpaMan):
             elif msg["lights"] == "off":
                 logger.info("Switching lights off")
                 await self._facade.lights[0].async_turn_off()
-        if "pump1" in msg:
-            if msg["pump1"] == "off":
-                logger.info("Switching pump 1 on")
-                await self._facade.pumps[0].set_mode("OFF")
-            elif msg["pump1"] == "low":
-                logger.info("Switching pump 1 to low")
-                await self._facade.pumps[0].set_mode("LO")
-            elif msg["pump1"] == "high":
-                logger.info("Switching pump 1 to high")
-                await self._facade.pumps[0].set_mode("HI")
-        if "pump2" in msg:
-            if 2 > len(self._facade.pumps):
-                logger.warning(f"Pump number 2 does not exist.")
-                return
-            if msg["pump2"] == "off":
-                logger.info("Switching pump 2 on")
-                await self._facade.pumps[1].set_mode("OFF")
-            elif msg["pump2"] == "low":
-                logger.info("Switching pump 2 to low")
-                await self._facade.pumps[1].set_mode("LO")
-            elif msg["pump2"] == "high":
-                logger.info("Switching pump 2 to high")
-                await self._facade.pumps[1].set_mode("HI")
-        if "temp" in msg:
+        elif "pump1" in msg or "pump2" in msg or "pump3" in msg:
+            if "pump1" in msg:
+                pump = "pump1"
+                p_nbr = 1
+            elif "pump2" in msg:
+                pump = "pump2"
+                p_nbr = 2
+            elif "pump2" in msg:
+                pump = "pump3"
+                p_nbr = 3
+            if msg[pump] == "off":
+                logger.info("Switching pump %i off", p_nbr)
+                await self._facade.pumps[p_nbr -1].set_mode("OFF")
+            elif msg[pump] == "low":
+                logger.info("Switching pump %i to low", p_nbr)
+                await self._facade.pumps[p_nbr -1].set_mode("LO")
+            elif msg[pump] == "high":
+                logger.info("Switching pump % to high", p_nbr)
+                await self._facade.pumps[p_nbr -1].set_mode("HI")
+        elif "temp" in msg:
             try:
                 temp = float(msg["temp"])
             except Exception as ex:
                 logger.warning(f"Wrong temperature value received")
                 return
-            if temp < 5 and temp > 40:
+            if temp < 15 and temp > 40:
                 logger.warning(f"Temperature {temp} outside allowed values")
                 return
             await self._facade.water_heater.set_target_temperature(temp)
-        if "blower" in msg and self.facade.blowers[0] is not None:
+        elif "blower" in msg and self.facade.blowers[0] is not None:
             if msg["blower"] == "high":
                 logger.info("Switching blower on")
                 await self._facade.blowers[0].async_turn_on()
             elif msg["blower"] == "off":
                 logger.info("Switching blower on")
                 await self._facade.blowers[0].async_turn_off()
-        if "watercare" in msg:
+        elif "watercare" in msg:
             try:
                 mode = int(msg["watercare"])
             except:
                 logger.error(f"Wrong mode received: {mode}")
                 return
             await self._facade.water_care.async_set_mode(mode)
-        if "refresh" in msg:
+        elif "refresh" in msg:
             if msg["refresh"] == "all":
                 await self._refreshAll()
+        else:
+            logger.warning(f"Wrong command received")
+
 
 class OnChange():
     def __init__(self, mySpa: MySpa) -> None:
