@@ -101,16 +101,16 @@ To check the status of the service use
 sudo systemctl status gecko.service
 ```
 # SPA controllers
-Since version 0.6.x teh SPA is controlled by only one control topic `%prefix%/control`. The message has been transferred into a JSON string. The different items con be controlled as following
+Since version 0.6.x the SPA is controlled by only one control topic `%prefix%/control`. The message has been transferred into a JSON string. The different items can be controlled as following
 
-| Item | JSON String | Comment |
-| ---- | ----- | --- |
-| Lights | {"lights":"off&#124;on"} |
-| Temperature | {"temp":TEMP} | TEMP is between 15.0 and 40.0 in steps of 0.5 |
-| Pumps | {"pumpX":"off&#124;low&#124;high"} | Not all SPA support 'low' value |
-| Blower | {"blower":"off&#124;high"} |
-| Watercare | {"watercare":"MODE"} | See below for possible MODE values | 
-| Refresh All | {"refresh":"all"} |
+| Item | JSON String                                           | Comment |
+| ---- |-------------------------------------------------------| --- |
+| Lights | {"lights":"off&#124;on"}                              |
+| Temperature | {"temp":TEMP}                                         | TEMP is between 15.0 and 40.0 in steps of 0.5 |
+| Pumps | {"pump":"off&#124;low&#124;high","number":PUMPNUMBER} | Not all SPA support 'low' value |
+| Blower | {"blower":"off&#124;high"}                            |
+| Watercare | {"watercare":"MODE"}                                  | See below for possible MODE values | 
+| Refresh All | {"refresh":"all"}                                     |
 
 Watercare mode is one of the values below (you can use either the integer or the string value):
 * 0 = "Away From Home" 
