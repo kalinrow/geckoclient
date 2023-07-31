@@ -360,32 +360,27 @@ class MySpa(GeckoAsyncSpaMan):
             elif msg["lights"] == "off":
                 logger.info("Switching lights off")
                 await self._facade.lights[0].async_turn_off()
-        elif "pump1" in msg or "pump2" in msg or "pump3" in msg:
-            if "pump1" in msg:
-                pump = "pump1"
-                p_nbr = 1
-            elif "pump2" in msg:
-                pump = "pump2"
-                p_nbr = 2
-            elif "pump2" in msg:
-                pump = "pump3"
-                p_nbr = 3
-            if msg[pump] == "off":
+        elif "pump" in msg:
+            p_nbr = int(msg["number"])
+            if p_nbr > len(self._facade.pumps):
+                logger.warning(f"Pump %i does not exist.", p_nbr)
+                return
+            if msg["pump"] == "off":
                 logger.info("Switching pump %i off", p_nbr)
-                await self._facade.pumps[p_nbr -1].set_mode("OFF")
-            elif msg[pump] == "low":
+                await self._facade.pumps[p_nbr - 1].set_mode("OFF")
+            elif msg["pump"] == "low":
                 logger.info("Switching pump %i to low", p_nbr)
-                await self._facade.pumps[p_nbr -1].set_mode("LO")
-            elif msg[pump] == "high":
-                logger.info("Switching pump % to high", p_nbr)
-                await self._facade.pumps[p_nbr -1].set_mode("HI")
+                await self._facade.pumps[p_nbr - 1].set_mode("LO")
+            elif msg["pump"] == "high":
+                logger.info("Switching pump %i to high", p_nbr)
+                await self._facade.pumps[p_nbr - 1].set_mode("HI")
         elif "temp" in msg:
             try:
                 temp = float(msg["temp"])
             except Exception as ex:
                 logger.warning(f"Wrong temperature value received")
                 return
-            if temp < 15 and temp > 40:
+            if temp < 6 and temp > 40:
                 logger.warning(f"Temperature {temp} outside allowed values")
                 return
             await self._facade.water_heater.set_target_temperature(temp)
