@@ -1,6 +1,8 @@
 {
     "cSpell.words": [
         "asyncio",
+        "Bromi",
+        "cjson",
         "cmnd",
         "gazoodle",
         "geckoclient",
@@ -11,10 +13,14 @@
         "NOTSET",
         "OZONEMODE",
         "paho",
+        "PUMPNUMBER",
+        "Setpoint",
         "signum",
         "SIGTERM",
         "SMARTWINTERMODE",
         "spaman",
+        "SPAXX",
+        "userdata",
         "watercare",
         "WATERHEAT"
     ]

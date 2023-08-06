@@ -106,7 +106,7 @@ Since version 0.6.x the SPA is controlled by only one control topic `%prefix%/co
 | Item | JSON String                                           | Comment |
 | ---- |-------------------------------------------------------| --- |
 | Lights | {"lights":"off&#124;on"}                              |
-| Temperature | {"temp":TEMP}                                         | TEMP is between 15.0 and 40.0 in steps of 0.5 |
+| Temperature | {"temp":TEMP}                                         | TEMP is in steps of 0.5 |
 | Pumps | {"pump":"off&#124;low&#124;high","number":PUMPNUMBER} | Not all SPA support 'low' value |
 | Blower | {"blower":"off&#124;high"}                            |
 | Watercare | {"watercare":"MODE"}                                  | See below for possible MODE values | 
@@ -177,6 +177,10 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 * Error handling not able to find/connect to a spa
 
 # History
+
+### v0.6.1
+* Support for fahrenheit temperature unit
+* Usage of temperature min. and max. values from geckolib
 
 ### v0.6.0
 * Breaking change

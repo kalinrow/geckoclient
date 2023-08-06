@@ -12,7 +12,7 @@ from datetime import datetime
 from geckolib import (GeckoSpaEvent, GeckoSpaState)
 from geckolib import GeckoAsyncSpaMan
 
-from geckolib import (GeckoWaterCare, GeckoReminders, GeckoStructAccessor)
+from geckolib import (GeckoWaterCare, GeckoReminders, GeckoStructAccessor, GeckoWaterHeater)
 
 from geckolib import GeckoConstants
 
@@ -47,10 +47,12 @@ class MySpa(GeckoAsyncSpaMan):
         if event == GeckoSpaEvent.CLIENT_FACADE_IS_READY:
 
             logger.info("SPA facade is ready.")
-            self._can_use_facade = True
 
             # at least publish once all values once
             await self._refreshAll()
+
+            # now we can use the facade
+            self._can_use_facade = True
 
             # add the watcher to see all changes
             self._facade.watch(OnChange(self))
@@ -380,7 +382,13 @@ class MySpa(GeckoAsyncSpaMan):
             except Exception as ex:
                 logger.warning(f"Wrong temperature value received")
                 return
-            if temp < 6 and temp > 40:
+            check_failed = False
+            if self._facade.water_heater.temperature_unit == GeckoWaterHeater.TEMP_CELCIUS:
+                if temp < GeckoWaterHeater.MIN_TEMP_C or temp > GeckoWaterHeater.MAX_TEMP_C:
+                    check_failed = True
+            elif temp < GeckoWaterHeater.MIN_TEMP_F or temp > GeckoWaterHeater.MAX_TEMP_F:
+                check_failed = True
+            if check_failed:
                 logger.warning(f"Temperature {temp} outside allowed values")
                 return
             await self._facade.water_heater.set_target_temperature(temp)
@@ -444,6 +452,9 @@ class OnChange():
 
             elif sender.tag == "Clean" or sender.tag == "Purge":
                 self._mySpa.refreshFilters()
+
+            elif sender.tag == "TempUnits":
+                self._mySpa.refreshHeater()
 
             else:
                 logger.warning(f"Not handled GeckoStructAccessor sender tag received: {sender.tag}")
