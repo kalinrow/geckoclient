@@ -9,25 +9,31 @@ So far the heater, water care, filter, the pumps and lights status as well as th
 The script has been written and tested only on a Linux machine. No idea, if it also works on a Windows host.
 For sure the service installation needs to be adapted.
 
-You need to have Python 3.8 or later installed with the libraries geckolib and asyncio-paho.
+You need to have Python 3.8 or later installed, setup an venv and install the libraries geckolib and asyncio-paho.
 
 ```console
-sudo apt install python3-pip       # if not already installed
-sudo pip3 install geckolib==0.4.8
-sudo pip3 install asyncio-paho
+sudo apt install python3-full
+
+sudo python3 -m venv /opt/geckoclient/virtualenv
+sudo /opt/geckoclient/virtualenv/bin/pip3 install geckolib==0.4.20
+sudo /opt/geckoclient/virtualenv/bin/pip3 install asyncio-paho
 ```
 
 ## Installation
+
 The installation is quiet simple by coping the files to a dedicated folder and configuring the client to run as a service.
 If you update from an older version, please stop the service before coping  the files.
 
 1. Create a folder, e.g. /opt/geckoclient
 2. Copy all python file into the folder
-   ```
+
+   ```bash
    cp src/*.py /opt/geckoclient
    ```
+
 3. Copy the config template to `config.py`
-   ```
+
+   ```bash
    cp src/config.py_template /opt/geckoclient/config.py
    ```
 
@@ -75,32 +81,42 @@ BACKUP_COUNT=5
 ```
 
 ## Configure as service
+
 1. Update the path in gecko.service (only if geckoclient has not been installed in /opt/geckoclient)
 2. Copy service/gecko.service into /etc/systemd/system
-   ```
+
+   ```bash
    cp service/gecko.service /etc/systemd/system
    ```
+
 5. Enable the service
-   ``` 
+
+   ```bash
    sudo systemctl enable gecko.service
    ```
 
 ### Start/Stop the service
+
 To start the service use
-``` 
+
+```bash
 sudo systemctl start gecko.service
 ```
 
 To stop the service use
-``` 
+
+```bash
 sudo systemctl stop gecko.service
 ```
 
 To check the status of the service use
-``` 
+
+```bash
 sudo systemctl status gecko.service
 ```
+
 # SPA controllers
+
 Since version 0.6.x the SPA is controlled by only one control topic `%prefix%/control`. The message has been transferred into a JSON string. The different items can be controlled as following
 
 | Item | JSON String                                           | Comment |
@@ -113,20 +129,25 @@ Since version 0.6.x the SPA is controlled by only one control topic `%prefix%/co
 | Refresh All | {"refresh":"all"}                                     |
 
 Watercare mode is one of the values below (you can use either the integer or the string value):
+
 * 0 = "Away From Home" 
 * 1 = "Standard"
 * 2 = "Energy Saving"
 * 3 = "Super Energy Saving"
 * 4 = "Weekender"
 
-
-
 # Known Issues
 
+## Version 0.7.0 is a breaking change
+
+This version requires geckolib version 0.4.20
+
 ## Version 0.6.0 is a breaking change
+
 The control topic and messages have been changed from version 0.6.0. From this version only one command topic `%prefix%\control` is used to control the SPA. And the message has been switched to JSON.
 
 ## Long waiting time for receiving value change notification
+
 Without manipulating the geckolib, receiving changed values might take up to 2 minutes. I was not able to figure out why.
 
 If you need quicker, e.g because you want to measure runtime of pumps, etc. you need to change the file async_facade.py. To do so, first find the file (in a standard Debian 11 with python3.9 is might be under /usr/local/lib/python3.9/dist-packages/geckolib/automation).
@@ -151,10 +172,12 @@ It should now look like:
 Now changes are reported immediately. Still there is a 2 minuted gap after the startup of the service.
 
 ## High CPU usage
+
 If you suffer from high CPU usage you can change the yield value for asyncio sleep time.
 That will dramatically reduce the CPU usage.
 
 To do so, change the value _ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD_ in geckolib `const.py` in geckolib main folder (see above) from 0.001 to 0.02. The latter value works well for me.
+
 ```python
     CONNECTION_STEP_PAUSE_IN_SECONDS = 0  # Time between connection steps
     MAX_RF_ERRORS_BEFORE_HALT = 50
@@ -163,8 +186,8 @@ To do so, change the value _ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD_ in geckolib `const.
 
 # Acknowledgements
 
- - Inspired by https://github.com/gazoodle/geckolib and https://github.com/chicago6061/in.touch2.
- - Thanks to the folk at Gecko for building this system as a local device rather than mandating a cloud solution.
+* Inspired by https://github.com/gazoodle/geckolib and https://github.com/chicago6061/in.touch2.
+* Thanks to the folk at Gecko for building this system as a local device rather than mandating a cloud solution.
  
 # License
 Licensed under the EUPL-1.2-or-later.
@@ -173,43 +196,55 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 
 # Improvement ideas
+
 * (DONE) Switch command topic values to json format
 * Error handling not able to find/connect to a spa
 
 # History
 
+## v0.7.0
+
+* Upgrade to geckolib 0.4.20
+
 ### v0.6.1
+
 * Support for fahrenheit temperature unit
 * Usage of temperature min. and max. values from geckolib
 
 ### v0.6.0
+
 * Breaking change
 * Switch to one command topic and change value to json format
 * Update to use geckolib v0.4.8
 
 ### v0.5.4
+
 * Fix bug that water care mode could not be set
 * Fix error describing setting of water care mode in README.md
 
 ### v0.5.3
+
 * Forced decimal separator to point
 * Added a check, if facade is ready. Log the error and exit gracefully.
 * Improved unexpected disconnection handling
 * Added publishing filter status
 
 ### v0.5.2
+
 * BugFix #3: Spa check interval configured as string instead of integer in const.py
 * Added missing configuration values in config.py-template
 * Adding refresh_all command to re-publish all values
 
 ### v0.5.1
+
 * Adding log level option for geckolib in config.py
 * Adding exception handling with default values for missing _SPA_IP_ADDRESS_ (DHCP) and _BACKUP_COUNT_ (WARN) values in config.py
 
 ### v0.5
+
 * Breaking changes in config.py:
-    * SPA_IP_ADDRESS address parameter needs to be provided
-    * BACKUP_COUNT needs to be provided 
+  * SPA_IP_ADDRESS address parameter needs to be provided
+  * BACKUP_COUNT needs to be provided
 * Fixing publishing filter values
 * Adding smart winter and ozone mode values
 * Adding setting of first blower and water care mode (thanks to Marcus)
@@ -217,17 +252,19 @@ https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 
 ### v0.4
+
 * Adapting to geckolib 0.4.7
 * No manipulation of the GeckoLib is needed anymore to get the reminders.
 * Switching to Asynchronous I/O (asyncio) Paho MQTT client to be able to use the async part of the geckoclient
 
 ### v0.3
+
 * Adding states for blowers
 
 ### v0.2
+
 * fix for reading pumps correctly
 
 ### v0.1
+
 * first working version
-
-

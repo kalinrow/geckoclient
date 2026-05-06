@@ -6,7 +6,7 @@
 	"configurations": [
 		{
 			"name": "Python: Aktuelle Datei",
-			"type": "python",
+			"type": "debugpy",
 			"request": "launch",
 			"program": "-i -m -justMyCode=false ${file}",
 			"console": "integratedTerminal",
@@ -15,7 +15,7 @@
 		},
 		{
 			"name": "Python: GeckoClient",
-			"type": "python",
+			"type": "debugpy",
 			"request": "launch",
 			"program": "${workspaceFolder}/src/client.py",
 			"console": "integratedTerminal",

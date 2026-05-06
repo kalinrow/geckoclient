@@ -111,7 +111,7 @@ async def main() -> None:
     logger.info("Connecting to SPA...")
     async with MySpa(config.CLIENT_ID, spa_address=ip, spa_identifier=config.SPA_IDENTIFIER, spa_name=config.SPA_NAME) as spaman:
 
-        await asyncio.sleep(GeckoConstants.ASYNCIO_SLEEP_TIMEOUT_FOR_YIELD)
+        await asyncio.sleep(1)
 
         # Add the value change callback to publish on mqtt
         spaman.onValueChange(mqtt.publish_state)
@@ -135,7 +135,7 @@ async def main() -> None:
         try:
             broker_int = config.BROKER_INTERVAL
         except:
-            broker_int = 10
+            broker_int = 30
         refresh_counter = 0
         reconnect_counter = 0
 
@@ -143,7 +143,7 @@ async def main() -> None:
         while not stop_service:
 
             refresh_counter += 1
-            # check each 10 seconds if mySpa is still connected
+            # check each 30 seconds if mySpa is still connected
             if (refresh_counter > broker_int):
 
                 refresh_counter = 1
@@ -158,6 +158,8 @@ async def main() -> None:
                         exit(2)
                 else:
                     reconnect_counter = 0
+                    # publish waterHeater values to MQTT
+                    spaman.refreshHeater()
 
             await asyncio.sleep(1)
 

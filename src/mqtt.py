@@ -103,17 +103,17 @@ class Mqtt:
         await self.client.asyncio_subscribe(sub)
         self.client.asyncio_listeners.message_callback_add(sub, callback)
 
-    def publish(self, topic: str, msg: str, qos=0):
+    def publish(self, topic: str, msg: str, qos=0, retain=False):
         '''
         Publish the msg in topic with qos.
         '''
-        self.client.publish(topic, msg, qos)
+        self.client.publish(topic, msg, qos, retain)
 
     def publish_state(self, topic: str, msg: str, qos=0):
         '''
         Publish the state (msg) in topic + "/state" with qos.
         '''
-        self.client.publish(topic + "/state", msg, qos)
+        self.client.publish(topic + "/state", msg, qos, retain=True)
 
     def close(self):
         self.client.disconnect()
