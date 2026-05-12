@@ -369,13 +369,13 @@ class MySpa(GeckoAsyncSpaMan):
                 return
             if msg["pump"] == "off":
                 logger.info("Switching pump %i off", p_nbr)
-                await self._facade.pumps[p_nbr - 1].set_mode("OFF")
+                await self._facade.pumps[p_nbr - 1].async_set_mode("OFF")
             elif msg["pump"] == "low":
                 logger.info("Switching pump %i to low", p_nbr)
-                await self._facade.pumps[p_nbr - 1].set_mode("LO")
+                await self._facade.pumps[p_nbr - 1].async_set_mode("LO")
             elif msg["pump"] == "high":
                 logger.info("Switching pump %i to high", p_nbr)
-                await self._facade.pumps[p_nbr - 1].set_mode("HI")
+                await self._facade.pumps[p_nbr - 1].async_set_mode("HI")
         elif "temp" in msg:
             try:
                 temp = float(msg["temp"])
@@ -391,7 +391,8 @@ class MySpa(GeckoAsyncSpaMan):
             if check_failed:
                 logger.warning(f"Temperature {temp} outside allowed values")
                 return
-            await self._facade.water_heater.set_target_temperature(temp)
+            logger.info("Setting temperature to %.1f", temp)
+            await self._facade.water_heater.async_set_target_temperature(temp)
         elif "blower" in msg and self.facade.blowers[0] is not None:
             if msg["blower"] == "high":
                 logger.info("Switching blower on")

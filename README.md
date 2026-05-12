@@ -138,6 +138,10 @@ Watercare mode is one of the values below (you can use either the integer or the
 
 # Known Issues
 
+## Version 0.7.1
+
+Removes last sync calls to geckolib.
+
 ## Version 0.7.0 is a breaking change
 
 This version requires geckolib version 0.4.20

@@ -3,7 +3,7 @@
     Client program for GeckoLib. Publishes most relevant data
     on a configured broker.
 
-    version 0.6.0
+    version 0.7.1
 """
 
 # import python modules
